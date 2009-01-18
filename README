@@ -1,0 +1,30 @@
+= HTTP Services Provider
+
+A Framework for providing web services over HTTP with Rails. Requests are routed through the service dispatcher by using special routing rules. This service dispatcher uses exposer modules to map requests to controller methods. Exposer modules (like the included XMLRPCExposing module) parse requests in a protocol-specific way. Exposer modules are configured in the controller. These modules can also provide functionality for rendering responses in a protocol-specific way.
+
+The framework includes a module for exposing XML-RPC services called XMLRPCExposing.
+
+== Example
+
+To have a controller expose a service, include an exposer module like XMLRPCExposing. This gives the controller a service_dispatcher class attribute through which the service can be configured. It also provides a service_request instance attribute through which a controller action can access the parsed request:
+
+	class XmlrpcgreetingController < ApplicationController
+	  include XMLRPCExposing
+	  service_dispatcher.draw_routes do |map|
+	    map.xmlrpc 'greetz', :action => 'do_greeting'
+	    map.xmlrpc ':action' 
+	  end
+  
+	  def do_greeting
+	    result = "Hello " + self.service_request.params.first
+	    render_xmlrpc(result)
+	  end
+	end
+	
+To activate a service, put something like:
+
+	  map.service :xmlrpcgreeting
+
+in your routes.rb. This routes requests to /xmlrpcgreeting through the service dispatcher.
+
+Copyright (c) 2008 Nedforce Informatica Specialisten B.V., released under the MIT license
